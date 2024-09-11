@@ -2,3 +2,4 @@ Flask
 bcrypt
 flask-cors
 pymongo
+gunicorn
