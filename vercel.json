@@ -3,8 +3,8 @@
     "builds": [
       {
         "src": "login_signup.py",
-        "use": "@vercel/python",
-        "timeout": 10
+        "use": "@vercel/python"
+        
       }
     ],
     "routes": [
