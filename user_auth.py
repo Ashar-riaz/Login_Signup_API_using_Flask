@@ -42,11 +42,12 @@ def get_db_connection():
 def is_valid_email(email):
     return '@' in parseaddr(email)[1]
 
-# Signup route
 @app.route('/signup', methods=['POST'])
 def signup():
     try:
         data = request.get_json()
+        print(f"Received data: {data}")  # Log the received data
+
         username = data.get('username')
         password = data.get('password')
         email = data.get('email')
@@ -71,9 +72,10 @@ def signup():
         return jsonify({'message': 'User created successfully'}), 201
 
     except Exception as e:
-        print(f"Error during signup: {e}")
-        traceback.print_exc()
+        print(f"Error during signup: {e}")  # Print the error
+        traceback.print_exc()  # Print detailed traceback
         return jsonify({'error': 'An error occurred during signup'}), 500
+
 
 # Login route
 @app.route('/login', methods=['POST'])
