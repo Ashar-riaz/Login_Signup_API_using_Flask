@@ -3,3 +3,4 @@ bcrypt
 flask-cors
 pymongo
 gunicorn
+sanic==19.6.0
