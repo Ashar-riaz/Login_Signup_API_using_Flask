@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
       {
-        "src": "user_auth.py",
+        "src": "login_and_signup.py",
         "use": "@vercel/python"
         
       }
@@ -10,7 +10,7 @@
     "routes": [
       {
         "src": "/(.*)",
-        "dest": "user_auth.py"
+        "dest": "login_and_signup.py"
       }
     ]
   }
