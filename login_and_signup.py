@@ -2,12 +2,26 @@ from flask import Flask, request, jsonify
 import bcrypt
 from email.utils import parseaddr
 from flask_cors import CORS
+import json
+import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# In-memory storage for users
-users = []
+# File path for storing user data
+USER_DATA_FILE = './users.json'
+
+# Load users from JSON file
+def load_users():
+    if os.path.exists(USER_DATA_FILE):
+        with open(USER_DATA_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+# Save users to JSON file
+def save_users(users):
+    with open(USER_DATA_FILE, 'w') as f:
+        json.dump(users, f)
 
 # Validate email format
 def is_valid_email(email):
@@ -30,12 +44,14 @@ def signup():
 
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-        # Check if username already exists
-        for user in users:
-            if user['username'] == username:
-                return jsonify({'error': 'Username already exists'}), 400
+        users = load_users()
 
-        users.append({'username': username, 'password': hashed_password, 'email': email})
+        # Check if username already exists
+        if any(user['username'] == username for user in users):
+            return jsonify({'error': 'Username already exists'}), 400
+
+        users.append({'username': username, 'password': hashed_password.decode('utf-8'), 'email': email})
+        save_users(users)
         return jsonify({'message': 'User created successfully'}), 201
 
     except Exception as e:
@@ -52,9 +68,10 @@ def login():
         if not username or not password:
             return jsonify({'error': 'Username and password are required'}), 400
 
+        users = load_users()
         user = next((user for user in users if user['username'] == username), None)
 
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             return jsonify({'message': 'Login successful'}), 200
         else:
             return jsonify({'error': 'Invalid username or password'}), 401
