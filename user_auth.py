@@ -3,10 +3,14 @@ import sqlite3
 import bcrypt
 from email.utils import parseaddr
 from flask_cors import CORS
+import logging
 import traceback
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Database setup
 def create_db():
@@ -23,8 +27,9 @@ def create_db():
         ''')
         conn.commit()
         conn.close()
+        logging.info("Database and table created successfully.")
     except Exception as e:
-        print(f"Error creating database: {e}")
+        logging.error(f"Error creating database: {e}")
         traceback.print_exc()
 
 # Helper function to get database connection
@@ -34,7 +39,7 @@ def get_db_connection():
         conn.row_factory = sqlite3.Row
         return conn
     except Exception as e:
-        print(f"Error connecting to database: {e}")
+        logging.error(f"Error connecting to database: {e}")
         traceback.print_exc()
         return None
 
@@ -42,11 +47,12 @@ def get_db_connection():
 def is_valid_email(email):
     return '@' in parseaddr(email)[1]
 
+# Signup route
 @app.route('/signup', methods=['POST'])
 def signup():
     try:
         data = request.get_json()
-        print(f"Received data: {data}")  # Log the received data
+        logging.debug(f"Received data: {data}")
 
         username = data.get('username')
         password = data.get('password')
@@ -72,16 +78,17 @@ def signup():
         return jsonify({'message': 'User created successfully'}), 201
 
     except Exception as e:
-        print(f"Error during signup: {e}")  # Print the error
-        traceback.print_exc()  # Print detailed traceback
+        logging.error(f"Error during signup: {e}")
+        logging.debug(traceback.format_exc())
         return jsonify({'error': 'An error occurred during signup'}), 500
-
 
 # Login route
 @app.route('/login', methods=['POST'])
 def login():
     try:
         data = request.get_json()
+        logging.debug(f"Received data: {data}")
+
         username = data.get('username')
         password = data.get('password')
 
@@ -102,8 +109,8 @@ def login():
             return jsonify({'error': 'Invalid username or password'}), 401
 
     except Exception as e:
-        print(f"Error during login: {e}")
-        traceback.print_exc()
+        logging.error(f"Error during login: {e}")
+        logging.debug(traceback.format_exc())
         return jsonify({'error': 'An error occurred during login'}), 500
 
 # Main function to run the app
