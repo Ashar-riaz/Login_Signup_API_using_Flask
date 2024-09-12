@@ -1,6 +1,6 @@
-Flask
-bcrypt
-flask-cors
-pymongo
-gunicorn
-sanic==19.6.0
+Flask==2.3.2
+bcrypt==4.0.1
+flask-cors==3.0.10
+pymongo==4.5.0
+gunicorn==20.1.0
+sanic==23.3.0
