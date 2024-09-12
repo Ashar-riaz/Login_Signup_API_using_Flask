@@ -11,6 +11,9 @@
         "src": "/(.*)",
         "dest": "login_signup.py"
       }
-    ]
+    ],
+    "env": {
+      "MONGO_URI": "mongodb+srv://asharmetaviz:user123@cluster0.qckme.mongodb.net/"
+    }
   }
   
