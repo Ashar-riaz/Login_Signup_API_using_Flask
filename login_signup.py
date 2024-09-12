@@ -74,7 +74,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # MongoDB connection
-client = MongoClient('mongodb+srv://asharmetaviz:user123@cluster0.qckme.mongodb.net/')  # Replace with your MongoDB connection URI
+client = MongoClient('mongodb+srv://asharmetaviz:user123@cluster0.qckme.mongodb.net/') 
 db = client['Users_name']  # Database name
 users_collection = db['user']  # Collection name
 
