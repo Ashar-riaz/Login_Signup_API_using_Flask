@@ -69,12 +69,13 @@ from flask_cors import CORS, cross_origin
 from pymongo import MongoClient
 import bcrypt
 from email.utils import parseaddr
-import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-client = MongoClient(os.getenv("mongodb+srv://asharmetaviz:user123@cluster0.qckme.mongodb.net/"))
+# MongoDB connection
+# client = MongoClient('mongodb+srv://asharmetaviz:user123@cluster0.qckme.mongodb.net/') 
+client = MongoClient(os.getenv('MONGO_URI'))
 db = client['Users_name']  # Database name
 users_collection = db['user']  # Collection name
 
@@ -95,8 +96,7 @@ def signup():
     if not is_valid_email(email):
         return jsonify({'error': 'Invalid email address'}), 400
 
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=12))
-
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     try:
         # Check if the username already exists
