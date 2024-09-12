@@ -69,6 +69,7 @@ from flask_cors import CORS, cross_origin
 from pymongo import MongoClient
 import bcrypt
 from email.utils import parseaddr
+import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
