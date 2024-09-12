@@ -8,33 +8,30 @@ import os
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# File path for storing user data
-USER_DATA_FILE = 'users.json'
+# Path to the JSON file
+JSON_FILE_PATH = 'users.json'
 
-# Load users from JSON file
-def load_users():
-    if os.path.exists(USER_DATA_FILE):
-        with open(USER_DATA_FILE, 'r') as f:
-            return json.load(f)
+# Helper function to read users from JSON file
+def read_users():
+    if os.path.exists(JSON_FILE_PATH):
+        with open(JSON_FILE_PATH, 'r') as file:
+            return json.load(file)
     return []
 
-# Save users to JSON file
-def save_users(users):
-    with open(USER_DATA_FILE, 'w') as f:
-        json.dump(users, f)
+# Helper function to write users to JSON file
+def write_users(users):
+    with open(JSON_FILE_PATH, 'w') as file:
+        json.dump(users, file, indent=4)
 
 # Validate email format
 def is_valid_email(email):
     return '@' in parseaddr(email)[1]
-
-# Signup route
 @app.route('/signup', methods=['POST'])
 def signup():
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No JSON data provided'}), 400
-        
+        print(f"Received data: {data}")  # Debug print
+
         username = data.get('username')
         password = data.get('password')
         email = data.get('email')
@@ -46,27 +43,31 @@ def signup():
             return jsonify({'error': 'Invalid email address'}), 400
 
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        print(f"Hashed password: {hashed_password}")  # Debug print
 
-        users = load_users()
+        users = read_users()
+        print(f"Current users: {users}")  # Debug print
 
-        # Check if username already exists
         if any(user['username'] == username for user in users):
             return jsonify({'error': 'Username already exists'}), 400
 
-        users.append({'username': username, 'password': hashed_password, 'email': email})
-        save_users(users)
+        users.append({
+            'username': username,
+            'password': hashed_password,
+            'email': email
+        })
+        write_users(users)
         return jsonify({'message': 'User created successfully'}), 201
 
     except Exception as e:
-        return jsonify({'error': f'An error occurred during signup: {str(e)}'}), 500
+        print(f"Error during signup: {e}")  # Debug print
+        return jsonify({'error': 'An error occurred during signup'}), 500
 
 # Login route
 @app.route('/login', methods=['POST'])
 def login():
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No JSON data provided'}), 400
 
         username = data.get('username')
         password = data.get('password')
@@ -74,8 +75,8 @@ def login():
         if not username or not password:
             return jsonify({'error': 'Username and password are required'}), 400
 
-        users = load_users()
-        user = next((user for user in users if user['username'] == username), None)
+        users = read_users()
+        user = next((u for u in users if u['username'] == username), None)
 
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             return jsonify({'message': 'Login successful'}), 200
@@ -83,8 +84,10 @@ def login():
             return jsonify({'error': 'Invalid username or password'}), 401
 
     except Exception as e:
-        return jsonify({'error': f'An error occurred during login: {str(e)}'}), 500
+        return jsonify({'error': 'An error occurred during login'}), 500
 
 # Main function to run the app
 if __name__ == '__main__':
+    if not os.path.exists(JSON_FILE_PATH):
+        write_users([])  # Create an empty JSON file if it doesn't exist
     app.run(debug=True)
